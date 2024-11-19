@@ -13,23 +13,22 @@ def player_two_chip(game_piece_id):
     game_board_piece.itemconfig(game_piece_id, fill='blue')
 
 
-root = tk.Tk()
+def init_game_board(screen_width, screen_height, board_width, board_height, rows, columns):
 
-root.title('Connect 4')
-root.geometry('1000x1000')
+    root = tk.Tk()
 
+    root.title('Connect 4')
+    root.geometry('1000x1000')
 
-def init_game_board():
-
-    game_screen = tk.Frame(root, width=800, height=800, bg='white')
+    game_screen = tk.Frame(root, width=screen_width, height=screen_height, bg='white')
     game_screen.place(x=100, y=100)
-    game_board_width = 700
-    game_board_height = 700
+    game_board_width = board_width
+    game_board_height = board_height
     game_board = tk.Frame(game_screen, width=game_board_width, height=game_board_height, bg='black')
     game_board.place(x=25, y=25)
 
-    game_board_rows = 10
-    game_board_columns = 10
+    game_board_rows = rows
+    game_board_columns = columns
 
     circle_canvas_width = game_board_width/game_board_columns
     circle_canvas_height = game_board_height/game_board_columns
@@ -52,9 +51,4 @@ def init_game_board():
             game_board_piece.grid(row=i, column=j, padx=0, pady=0, sticky="nsew")
             game_board_pieces[i].append(game_board_piece)
 
-
-init_game_board()
-
-player_one_chip(game_board_pieces[1][5], game_board_circle_ids[1][5])
-
-root.mainloop()
+    root.mainloop()

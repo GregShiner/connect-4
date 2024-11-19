@@ -49,7 +49,8 @@ class GameBoard:
                 game_board_piece.grid(row=i, column=j, padx=0, pady=0, sticky="nsew")
                 self.game_board_pieces[i].append(game_board_piece)
 
-        self.window.after(2000, self.player_one_drop_chip, 0, 5, 9)
+        self.drop_multiple_chips(5)
+
         self.window.mainloop()
 
     def player_one_chip(self, row, column):
@@ -75,3 +76,8 @@ class GameBoard:
 
     def player_two_chip(self, row, column):
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='blue')
+
+    def drop_multiple_chips(self, count):
+        if count > 1:
+            self.player_one_drop_chip(0, count, 9)
+            self.window.after(2000, self.drop_multiple_chips, count-1)

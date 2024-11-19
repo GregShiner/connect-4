@@ -1,7 +1,8 @@
 from game import Game
-import ui
+from ui import GameBoard
 
-ui.init_game_board(screen_width=800, screen_height=800, board_width=700, board_height=700, rows=10, columns=10)
+board = GameBoard(800, 800, 700, 700, 10, 10)
+# board.player_one_drop_chip(10, 5, 2)
 game = Game()
 game.play_col(0)
 game.play_col(0)

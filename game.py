@@ -1,5 +1,6 @@
 from enum import Enum
 import numpy as np
+from ui import GameBoard
 
 
 DEFAULT = "\x1b[0;39;49m"
@@ -52,18 +53,26 @@ class Player(Enum):
             case Player.TWO.value:
                 return Player.ONE
 
+
 class Game:
-    def __init__(self, rows=6, cols=8, combo_len=4, starting_player = Player.ONE):
+    def __init__(self, rows, cols, combo_len=4, starting_player=Player.ONE):
         self.board = np.full(shape=(rows, cols), fill_value=Space.EMPTY, dtype=Space)
+        self.rows = rows
+        self.ui_board = GameBoard(800, 800, 700, 700, rows, cols)
+        self.ui_board.init_game_board()
         self.player = starting_player
+        self.game_time = 0
 
     def play_col(self, col: int) -> None:
         row = np.argmin(self.board[:, col] == Space.EMPTY) - 1
         if row == 0 and self.board[0, col] != Space.EMPTY:
             raise ValueError("Column is full")
+        print(f'row: {row}')
+        print(f'col: {col}')
         self.board[row, col] = self.player.to_piece()
-        self.player = ~self.player
+        self.ui_board.player_one_drop_chip(row, col)
 
+        self.player = ~self.player
 
     def __str__(self):
         string = ""

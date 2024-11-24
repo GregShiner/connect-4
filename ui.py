@@ -1,4 +1,5 @@
 import tkinter as tk
+import time as time
 
 
 class GameBoard:
@@ -13,7 +14,6 @@ class GameBoard:
         self.columns = columns
         self.game_board_pieces = [[]]
         self.game_board_circle_ids = [[]]
-        self.init_game_board()
 
     def init_game_board(self):
 
@@ -49,30 +49,31 @@ class GameBoard:
                 game_board_piece.grid(row=i, column=j, padx=0, pady=0, sticky="nsew")
                 self.game_board_pieces[i].append(game_board_piece)
 
-        self.drop_multiple_chips(5)
-
-        self.window.mainloop()
+        # self.drop_multiple_chips(5)
 
     def player_one_chip(self, row, column):
-        if row > 0:
-            self.empty_chip(row-1, column)
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='red')
+        self.window.update()
+        time.sleep(1)
 
     def empty_chip(self, row, column):
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='black')
 
-    def player_one_drop_chip(self, current_row, current_column, desired_row):
-        if current_row <= desired_row:
-            self.window.after(50, self.player_one_drop_chip, current_row+1, current_column, desired_row)
-            self.player_one_chip(current_row, current_column)
-        else:
-            pass
+    # def player_one_drop_chip(self, current_row, current_column, desired_row):
+    #     while current_row < desired_row:
+    #         self.player_one_chip(current_row, current_column)
+    #         current_row += current_row
+    #     else:
+    #         pass
         # if current_row == desired_row:
         #     return
         # elif current_row > desired_row:
         #
         # else:
         #     return -1
+
+    def player_one_drop_chip(self, row, column):
+            self.player_one_chip(row, column)
 
     def player_two_chip(self, row, column):
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='blue')

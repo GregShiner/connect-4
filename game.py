@@ -26,6 +26,7 @@ class Space(Enum):
             case Space.TWO.value:
                 return f"{RED}2{END}"
 
+
 class Player(Enum):
     ONE = 1
     TWO = 2
@@ -55,11 +56,9 @@ class Player(Enum):
 
 
 class Game:
-    def __init__(self, rows, cols, combo_len=4, starting_player=Player.ONE):
+    def __init__(self, rows=6, cols=8, combo_len=4, starting_player=Player.ONE):
         self.board = np.full(shape=(rows, cols), fill_value=Space.EMPTY, dtype=Space)
         self.rows = rows
-        self.ui_board = GameBoard(800, 800, 700, 700, rows, cols)
-        self.ui_board.init_game_board()
         self.player = starting_player
         self.game_time = 0
 
@@ -67,10 +66,7 @@ class Game:
         row = np.argmin(self.board[:, col] == Space.EMPTY) - 1
         if row == 0 and self.board[0, col] != Space.EMPTY:
             raise ValueError("Column is full")
-        print(f'row: {row}')
-        print(f'col: {col}')
         self.board[row, col] = self.player.to_piece()
-        self.ui_board.player_one_drop_chip(row, col)
 
         self.player = ~self.player
 

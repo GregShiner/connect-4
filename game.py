@@ -1,6 +1,5 @@
 from enum import Enum
 import numpy as np
-from ui import GameBoard
 
 
 DEFAULT = "\x1b[0;39;49m"

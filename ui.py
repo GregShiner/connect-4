@@ -16,6 +16,7 @@ class GameBoard:
         self.game_board_pieces = [[]]
         self.game_board_circle_ids = [[]]
         self.game = Game()
+        self.init_game_board()
 
     def init_game_board(self):
 
@@ -54,6 +55,7 @@ class GameBoard:
         for i in range(self.columns):
             self.game.play_col(i)
             self.game.play_col(i)
+            print(self.game)
 
     def player_one_chip(self, row, column):
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='red')

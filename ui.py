@@ -1,5 +1,6 @@
 import tkinter as tk
 import time as time
+from game import Game
 
 
 class GameBoard:
@@ -14,6 +15,7 @@ class GameBoard:
         self.columns = columns
         self.game_board_pieces = [[]]
         self.game_board_circle_ids = [[]]
+        self.game = Game()
 
     def init_game_board(self):
 
@@ -49,7 +51,9 @@ class GameBoard:
                 game_board_piece.grid(row=i, column=j, padx=0, pady=0, sticky="nsew")
                 self.game_board_pieces[i].append(game_board_piece)
 
-        # self.drop_multiple_chips(5)
+        for i in range(self.columns):
+            self.game.play_col(i)
+            self.game.play_col(i)
 
     def player_one_chip(self, row, column):
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='red')

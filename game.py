@@ -65,7 +65,7 @@ class Game:
         # Row gets set to -1 in 2 conditions
         # 1. Its the first row
         # 2. There is no available slot
-        row = np.argmin(self.board[:, col] == Space.EMPTY) - 1
+        row = int(np.argmin(self.board[:, col] == Space.EMPTY) - 1)
         if row == -1 and self.board[0, col] != Space.EMPTY:
             raise ValueError("Column is full")
         # The row being set to -1 to represent the last cell breaks the win checking logic, so set it back to a positive index
@@ -80,39 +80,46 @@ class Game:
 
     def check_win(self, coords: Tuple[int, int]) -> bool:
         number_in_row = 0
-        # for row_mult, col_mult in [(0, 1), (1, 0), (1, 1), (1, -1)]:
-        #     for offset in range(-(self.combo_len - 1), self.combo_len):
-        #         row = (row_mult * offset) + coords[0]
-        #         col = (row_mult * offset) + coords[1]
-        #
-        #         if row < 0 or row >= self.rows:
-        #             continue
-        #         if col < 0 or col >= self.cols:
-        #             continue
-        #
-        #         if self.board[row, col] == self.player.to_piece():
-        #             number_in_row += 1
-        #         else:
-        #             number_in_row = 0
-        #
-        #         if number_in_row == 4:
-        #             return True
-        for offset in range(-(self.combo_len - 1), self.combo_len):
-            row = offset + coords[0]
-            col = coords[1]
+        for row_mult, col_mult in [(0, 1), (1, 0), (1, 1), (1, -1)]:
+            for offset in range(-(self.combo_len - 1), self.combo_len):
+                row = (row_mult * offset) + coords[0]
+                col = (col_mult * offset) + coords[1]
 
-            if row < 0 or row >= self.rows:
+                if row < 0 or row >= self.rows:
+                    continue
+                if col < 0 or col >= self.cols:
+                    continue
+
+                if self.board[row, col] == self.player.to_piece():
+                    number_in_row += 1
+                else:
+                    number_in_row = 0
+
+                if number_in_row == 4:
+                    return True
+            number_in_row = 0
+        return False
+
+    @staticmethod
+    def from_str(input: str):
+        rows = input.split("\n")
+        game = Game()
+        for i, row in enumerate(rows):
+            if row.startswith("Current Player: "):
+                game.player = Player.ONE if "1" in row else Player.TWO
+            if i > 5:
                 continue
-            if col < 0 or col >= self.cols:
-                continue
+            for j, col in enumerate(row.split(" ")):
+                if j > 7:
+                    continue
+                if "1" in col:
+                    game.board[i, j] = Space.ONE
+                if "2" in col:
+                    game.board[i, j] = Space.TWO
+                if "0" in col:
+                    game.board[i, j] = Space.EMPTY
 
-            if self.board[row, col] == self.player.to_piece():
-                number_in_row += 1
-            else:
-                number_in_row = 0
-
-            if number_in_row == 4:
-                return True
+        return game
 
     def __str__(self):
         string = ""

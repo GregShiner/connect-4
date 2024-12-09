@@ -25,6 +25,9 @@ class Space(Enum):
             case Space.TWO.value:
                 return f"{RED}2{END}"
 
+    def __repr__(self):
+        return str(self.value)
+
 
 class Player(Enum):
     ONE = 1
@@ -36,6 +39,9 @@ class Player(Enum):
                 return f"{BLUE}1{END}"
             case Space.TWO.value:
                 return f"{RED}2{END}"
+
+    def __repr__(self):
+        return str(self.value)
 
     def to_piece(self):
         match self.value:

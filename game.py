@@ -1,6 +1,6 @@
 from enum import Enum
 import numpy as np
-
+from typing import Tuple
 
 DEFAULT = "\x1b[0;39;49m"
 RED = "\x1b[0;31;49m"
@@ -25,6 +25,9 @@ class Space(Enum):
             case Space.TWO.value:
                 return f"{RED}2{END}"
 
+    def __repr__(self):
+        return str(self.value)
+
 
 class Player(Enum):
     ONE = 1
@@ -36,6 +39,9 @@ class Player(Enum):
                 return f"{BLUE}1{END}"
             case Space.TWO.value:
                 return f"{RED}2{END}"
+
+    def __repr__(self):
+        return str(self.value)
 
     def to_piece(self):
         match self.value:
@@ -55,19 +61,72 @@ class Player(Enum):
 
 
 class Game:
-    def __init__(self, rows=6, cols=8, combo_len=4, starting_player=Player.ONE):
-        self.board = np.full(shape=(rows, cols), fill_value=Space.EMPTY, dtype=Space)
+    def __init__(self, rows=6, cols=8, combo_len=4, starting_player = Player.ONE):
         self.rows = rows
+        self.cols = cols
+        self.combo_len = combo_len
+        self.board = np.full(shape=(self.rows, self.cols), fill_value=Space.EMPTY, dtype=Space)
         self.player = starting_player
-        self.game_time = 0
 
-    def play_col(self, col: int) -> None:
-        row = np.argmin(self.board[:, col] == Space.EMPTY) - 1
-        if row == 0 and self.board[0, col] != Space.EMPTY:
+    def play_col(self, col: int) -> bool:
+        # Row gets set to -1 in 2 conditions
+        # 1. Its the first row
+        # 2. There is no available slot
+        row = int(np.argmin(self.board[:, col] == Space.EMPTY) - 1)
+        if row == -1 and self.board[0, col] != Space.EMPTY:
             raise ValueError("Column is full")
+        # The row being set to -1 to represent the last cell breaks the win checking logic, so set it back to a positive index
+        if row == -1:
+            row = self.rows - 1
         self.board[row, col] = self.player.to_piece()
-
+        is_win = self.check_win((row, col))
+        if is_win:
+            return True
         self.player = ~self.player
+        return False
+
+    def check_win(self, coords: Tuple[int, int]) -> bool:
+        number_in_row = 0
+        for row_mult, col_mult in [(0, 1), (1, 0), (1, 1), (1, -1)]:
+            for offset in range(-(self.combo_len - 1), self.combo_len):
+                row = (row_mult * offset) + coords[0]
+                col = (col_mult * offset) + coords[1]
+
+                if row < 0 or row >= self.rows:
+                    continue
+                if col < 0 or col >= self.cols:
+                    continue
+
+                if self.board[row, col] == self.player.to_piece():
+                    number_in_row += 1
+                else:
+                    number_in_row = 0
+
+                if number_in_row == 4:
+                    return True
+            number_in_row = 0
+        return False
+
+    @staticmethod
+    def from_str(input: str):
+        rows = input.split("\n")
+        game = Game()
+        for i, row in enumerate(rows):
+            if row.startswith("Current Player: "):
+                game.player = Player.ONE if "1" in row else Player.TWO
+            if i > 5:
+                continue
+            for j, col in enumerate(row.split(" ")):
+                if j > 7:
+                    continue
+                if "1" in col:
+                    game.board[i, j] = Space.ONE
+                if "2" in col:
+                    game.board[i, j] = Space.TWO
+                if "0" in col:
+                    game.board[i, j] = Space.EMPTY
+
+        return game
 
     def __str__(self):
         string = ""

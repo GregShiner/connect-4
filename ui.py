@@ -81,7 +81,6 @@ class GameBoard:
 
         self.launch_ai_agent()
 
-        self.window.mainloop()
 
     def get_user_input(self):
         user_input = self.user_input.get()
@@ -130,13 +129,11 @@ class GameBoard:
         if row > 0:
             self.empty_chip(row - 1, column)
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='blue')
-        self.window.update()
 
     def player_two_drop_chip(self, row, column):
         if row > 0:
             self.empty_chip(row - 1, column)
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='red')
-        self.window.update()
 
     def clear_board(self):
         for row in range(self.rows):
@@ -155,7 +152,6 @@ class GameBoard:
             print(self.game)
             if self.game.player == Player.ONE:  # Human player here
                 self.info_label.config(text="Pick a column")
-                self.window.update()
                 self.playRound.wait_variable(self.button_pressed)
                 user_col = int(self.get_user_input())
 
@@ -166,13 +162,11 @@ class GameBoard:
                     print(f"Player {self.game.player.value} wins!")
                     self.info_label.config(text="User Wins!")
                     time.sleep(1)
-                    self.window.update()
                     self.game = Game()
                     self.clear_board()
             else:  # AI player
                 print("AI is thinking...")
                 self.info_label.config(text="AI is thinking...")
-                self.window.update()
                 col = MinimaxAI(self.game, depth=4).decide_move()
                 ai_won = self.game.play_col(col)
                 self.window.after(total_time, self.player_two_play_col, col, 0)
@@ -183,6 +177,5 @@ class GameBoard:
                     print(f"Player {self.game.player.value} wins!")
                     self.info_label.config(text="AI Wins!")
                     time.sleep(1)
-                    self.window.update()
                     self.game = Game()
                     self.clear_board()

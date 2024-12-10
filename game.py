@@ -2,7 +2,6 @@ from enum import Enum
 import numpy as np
 from typing import Tuple
 
-
 DEFAULT = "\x1b[0;39;49m"
 RED = "\x1b[0;31;49m"
 BLUE = "\x1b[0;34;49m"
@@ -26,6 +25,10 @@ class Space(Enum):
             case Space.TWO.value:
                 return f"{RED}2{END}"
 
+    def __repr__(self):
+        return str(self.value)
+
+
 class Player(Enum):
     ONE = 1
     TWO = 2
@@ -36,6 +39,9 @@ class Player(Enum):
                 return f"{BLUE}1{END}"
             case Space.TWO.value:
                 return f"{RED}2{END}"
+
+    def __repr__(self):
+        return str(self.value)
 
     def to_piece(self):
         match self.value:
@@ -52,6 +58,7 @@ class Player(Enum):
 
             case Player.TWO.value:
                 return Player.ONE
+
 
 class Game:
     def __init__(self, rows=6, cols=8, combo_len=4, starting_player = Player.ONE):

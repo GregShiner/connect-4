@@ -96,10 +96,8 @@ class GameBoard:
             if row + 1 < self.rows:
                 self.window.after(50, self.player_one_play_col, column, row + 1)
             else:
-                print('at bottom of board')
                 return
         else:
-            print('current board piece is not black')
             return
 
     def player_two_play_col(self, column, row=0):

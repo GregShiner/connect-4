@@ -1,6 +1,5 @@
 import tkinter as tk
 import time as time
-from tkinter import StringVar
 
 from game import Game, Player
 from ai_agent import MinimaxAI
@@ -22,6 +21,7 @@ class GameBoard:
         self.user_input = None
         self.playRound = None
         self.button_pressed = tk.StringVar()
+        self.exit_button = None
         self.info_label = None
         self.init_game_board()
 
@@ -45,8 +45,10 @@ class GameBoard:
         self.user_input.place(x=self.board_width/2+40, y=700)  # Place it within the game screen frame
 
         self.playRound = tk.Button(game_screen, text="Play Round", command=lambda: self.button_pressed.set("button pressed"))
-
         self.playRound.place(x=self.board_width/2+200, y=700)
+
+        self.exit_button = tk.Button(game_screen, text="Exit", command=self.exit_program)
+        self.exit_button.place(x=self.board_width/2-50, y=700)
 
         self.info_label = tk.Label(self.window, width=40)
         self.info_label.place(x=self.board_width/2-50, y=50)
@@ -85,6 +87,10 @@ class GameBoard:
         user_input = self.user_input.get()
         self.user_input.delete(0, "end")
         return user_input
+
+    def exit_program(self):
+
+        self.window.destroy()
 
     def player_one_play_col(self, column, row=0):
         if self.game_board_pieces[row][column].itemcget(self.game_board_circle_ids[row][column], "fill") == "black":

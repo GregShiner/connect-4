@@ -21,14 +21,14 @@ class GameBoard:
     def init_game_board(self):
 
         self.window.title('Connect 4')
-        self.window.geometry('1000x1000')
+        self.window.geometry('800x800')
 
         game_screen = tk.Frame(self.window, width=self.screen_width, height=self.screen_height, bg='white')
         game_screen.place(x=100, y=100)
         game_board_width = self.board_width
         game_board_height = self.board_height
         game_board = tk.Frame(game_screen, width=self.board_width, height=self.board_height, bg='black')
-        game_board.place(x=25, y=25)
+        game_board.place(x=(self.screen_width - self.board_width) / 2, y=(self.screen_height - self.board_height) / 2)
 
         circle_canvas_width = game_board_width / self.columns
         circle_canvas_height = game_board_height / self.columns
@@ -52,39 +52,73 @@ class GameBoard:
                 game_board_piece.grid(row=i, column=j, padx=0, pady=0, sticky="nsew")
                 self.game_board_pieces[i].append(game_board_piece)
 
-        for i in range(self.columns):
-            self.game.play_col(i)
-            self.game.play_col(i)
-            print(self.game)
+        time_delay = 1000
+        total_time = 0
 
-    def player_one_chip(self, row, column):
-        self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='red')
-        self.window.update()
-        time.sleep(1)
+        total_time += time_delay
+
+        self.window.after(total_time, self.player_one_play_col, 0, 0)
+        total_time += time_delay
+        self.window.after(total_time, self.player_two_play_col, 0, 0)
+        total_time += time_delay
+        self.window.after(total_time, self.player_one_play_col, 1, 0)
+        total_time += time_delay
+        self.window.after(total_time, self.player_two_play_col, 1, 0)
+        total_time += time_delay
+        self.window.after(total_time, self.player_one_play_col, 0, 0)
+        total_time += time_delay
+        self.window.after(total_time, self.player_two_play_col, 0, 0)
+        total_time += time_delay
+        self.window.after(total_time, self.player_one_play_col, 0, 0)
+        total_time += time_delay
+        self.window.after(total_time, self.player_two_play_col, 0, 0)
+        total_time += time_delay
+        self.window.mainloop()
+
+    def player_one_play_col(self, column, row=0):
+        if self.game_board_pieces[row][column].itemcget(self.game_board_circle_ids[row][column], "fill") == "black":
+            # Move the drop and update the display
+            self.game_board_pieces[row][column].itemcget(self.game_board_circle_ids[row][column], "fill")
+            self.player_one_drop_chip(row, column)
+
+            # Schedule the next row drop
+            if row + 1 < self.rows:
+                self.window.after(50, self.player_one_play_col, column, row + 1)
+            else:
+                print('at bottom of board')
+                return
+        else:
+            print('current board piece is not black')
+            return
+
+    def player_two_play_col(self, column, row=0):
+        if self.game_board_pieces[row][column].itemcget(self.game_board_circle_ids[row][column], "fill") == "black":
+            # Move the drop and update the display
+            self.game_board_pieces[row][column].itemcget(self.game_board_circle_ids[row][column], "fill")
+            self.player_two_drop_chip(row, column)
+
+            # Schedule the next row drop
+            if row + 1 < self.rows:
+                self.window.after(50, self.player_two_play_col, column, row + 1)
+            else:
+                print('at bottom of board')
+                return
+        else:
+            print('current board piece is not black')
+            return
+
 
     def empty_chip(self, row, column):
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='black')
 
-    # def player_one_drop_chip(self, current_row, current_column, desired_row):
-    #     while current_row < desired_row:
-    #         self.player_one_chip(current_row, current_column)
-    #         current_row += current_row
-    #     else:
-    #         pass
-        # if current_row == desired_row:
-        #     return
-        # elif current_row > desired_row:
-        #
-        # else:
-        #     return -1
-
     def player_one_drop_chip(self, row, column):
-            self.player_one_chip(row, column)
+        if row > 0:
+            self.empty_chip(row - 1, column)
+        self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='red')
+        self.window.update()
 
-    def player_two_chip(self, row, column):
+    def player_two_drop_chip(self, row, column):
+        if row > 0:
+            self.empty_chip(row - 1, column)
         self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='blue')
-
-    def drop_multiple_chips(self, count):
-        if count > 1:
-            self.player_one_drop_chip(0, count, 9)
-            self.window.after(2000, self.drop_multiple_chips, count-1)
+        self.window.update()

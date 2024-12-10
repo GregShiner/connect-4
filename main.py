@@ -5,12 +5,4 @@ from ui import GameBoard
 
 game_time = 0
 
-game = Game(6, 8)
-game.play_col(0)
-game.play_col(0)
-game.play_col(0)
-game.play_col(1)
-print(game)
-
-
-
+game_board = GameBoard(600, 600, 500, 500, 6, 6)

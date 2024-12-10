@@ -1,6 +1,9 @@
 import tkinter as tk
 import time as time
-from game import Game
+from tkinter import StringVar
+
+from game import Game, Player
+from ai_agent import MinimaxAI
 
 
 class GameBoard:
@@ -16,22 +19,44 @@ class GameBoard:
         self.game_board_pieces = [[]]
         self.game_board_circle_ids = [[]]
         self.game = Game()
+        self.user_input = None
+        self.playRound = None
+        self.button_pressed = tk.StringVar()
+        self.info_label = None
         self.init_game_board()
 
     def init_game_board(self):
-
         self.window.title('Connect 4')
         self.window.geometry('800x800')
 
-        game_screen = tk.Frame(self.window, width=self.screen_width, height=self.screen_height, bg='white')
-        game_screen.place(x=100, y=100)
-        game_board_width = self.board_width
-        game_board_height = self.board_height
-        game_board = tk.Frame(game_screen, width=self.board_width, height=self.board_height, bg='black')
-        game_board.place(x=(self.screen_width - self.board_width) / 2, y=(self.screen_height - self.board_height) / 2)
+        self.screen_width = 800
+        self.screen_height = 800
+        self.board_width = 600  # Set your desired width
+        self.board_height = 600  # Set your desired height
 
-        circle_canvas_width = game_board_width / self.columns
-        circle_canvas_height = game_board_height / self.columns
+        game_screen = tk.Frame(self.window, width=self.screen_width, height=self.screen_height, bg='gray')
+        game_screen.place(x=0, y=0)  # Place it at the top-left corner
+
+        game_board = tk.Frame(game_screen, width=self.board_width, height=self.board_height, bg='black')
+        game_board.place(x=(self.screen_width - self.board_width) // 2,
+                         y=(self.screen_height - self.board_height) // 2)
+
+        self.user_input = tk.Entry(game_screen, width=20)  # Increased width for better visibility
+        self.user_input.place(x=self.board_width/2+40, y=700)  # Place it within the game screen frame
+
+        self.playRound = tk.Button(game_screen, text="Play Round", command=lambda: self.button_pressed.set("button pressed"))
+
+        self.playRound.place(x=self.board_width/2+200, y=700)
+
+        self.info_label = tk.Label(self.window, width=40)
+        self.info_label.place(x=self.board_width/2-50, y=50)
+
+
+        game_screen.pack_propagate(False)  # Prevents the frame from resizing to fit its children
+        game_board.pack_propagate(False)  # Prevents the frame from resizing to fit its children
+
+        circle_canvas_width = self.board_width / self.columns
+        circle_canvas_height = self.board_height / self.columns
 
         circle_width = int(circle_canvas_width / 1.3)
         circle_height = int(circle_canvas_height / 1.3)
@@ -52,28 +77,14 @@ class GameBoard:
                 game_board_piece.grid(row=i, column=j, padx=0, pady=0, sticky="nsew")
                 self.game_board_pieces[i].append(game_board_piece)
 
-        time_delay = 1000
-        total_time = 0
+        self.launch_ai_agent()
 
-        total_time += time_delay
-
-        self.window.after(total_time, self.player_one_play_col, 0, 0)
-        total_time += time_delay
-        self.window.after(total_time, self.player_two_play_col, 0, 0)
-        total_time += time_delay
-        self.window.after(total_time, self.player_one_play_col, 1, 0)
-        total_time += time_delay
-        self.window.after(total_time, self.player_two_play_col, 1, 0)
-        total_time += time_delay
-        self.window.after(total_time, self.player_one_play_col, 0, 0)
-        total_time += time_delay
-        self.window.after(total_time, self.player_two_play_col, 0, 0)
-        total_time += time_delay
-        self.window.after(total_time, self.player_one_play_col, 0, 0)
-        total_time += time_delay
-        self.window.after(total_time, self.player_two_play_col, 0, 0)
-        total_time += time_delay
         self.window.mainloop()
+
+    def get_user_input(self):
+        user_input = self.user_input.get()
+        self.user_input.delete(0, "end")
+        return user_input
 
     def player_one_play_col(self, column, row=0):
         if self.game_board_pieces[row][column].itemcget(self.game_board_circle_ids[row][column], "fill") == "black":
@@ -114,11 +125,60 @@ class GameBoard:
     def player_one_drop_chip(self, row, column):
         if row > 0:
             self.empty_chip(row - 1, column)
-        self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='red')
+        self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='blue')
         self.window.update()
 
     def player_two_drop_chip(self, row, column):
         if row > 0:
             self.empty_chip(row - 1, column)
-        self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='blue')
+        self.game_board_pieces[row][column].itemconfig(self.game_board_circle_ids[row][column], fill='red')
         self.window.update()
+
+    def clear_board(self):
+        for row in range(self.rows):
+            for col in range(self.columns):
+                self.game_board_pieces[row][col].itemconfig(self.game_board_circle_ids[row][col], fill='black')
+
+    def launch_ai_agent(self):
+
+        self.game = Game(self.rows, self.columns)
+
+        time_delay = 10
+        total_time = 10
+
+        # Example gameplay loop
+        while True:
+            print(self.game)
+            if self.game.player == Player.ONE:  # Human player here
+                self.info_label.config(text="Pick a column")
+                self.window.update()
+                self.playRound.wait_variable(self.button_pressed)
+                user_col = int(self.get_user_input())
+
+                human_won = self.game.play_col(user_col - 1)
+                self.window.after(total_time, self.player_one_play_col, user_col-1, 0)
+                total_time += time_delay
+                if human_won:
+                    print(f"Player {self.game.player.value} wins!")
+                    self.info_label.config(text="User Wins!")
+                    time.sleep(1)
+                    self.window.update()
+                    self.game = Game()
+                    self.clear_board()
+            else:  # AI player
+                print("AI is thinking...")
+                self.info_label.config(text="AI is thinking...")
+                self.window.update()
+                col = MinimaxAI(self.game, depth=4).decide_move()
+                ai_won = self.game.play_col(col)
+                self.window.after(total_time, self.player_two_play_col, col, 0)
+                total_time += time_delay
+                print(f"AI plays column: {col + 1}")
+                self.info_label.config(text=f"AI plays column: {col + 1}")
+                if ai_won:
+                    print(f"Player {self.game.player.value} wins!")
+                    self.info_label.config(text="AI Wins!")
+                    time.sleep(1)
+                    self.window.update()
+                    self.game = Game()
+                    self.clear_board()
